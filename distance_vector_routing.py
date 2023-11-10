@@ -29,38 +29,37 @@ def get_user_input():
 
 
 def execute_command(commands):
-    while True:
-        try:
-            command = commands.split()
-            if command[0] == 'help':
-                print("Print commands list here")  # debug
-                pass
-            elif command[0] == 'server':
-                print("Read topology file and update routing every x seconds")  # debug
-                pass
-            elif command[0] == 'update':
-                server_id_1, server_id_2, link_cost = int(command[1]), int(command[2]), int(command[3])
-                pass
-            elif command[0] == 'step':
-                pass
-            elif command[0] == 'packets':
-                pass
-            elif command[0] == 'display':
-                pass
-            elif command[0] == 'disable':
-                server_id = int(command[1])
-                pass
-            elif command[0] == 'crash':
-                pass
-        except KeyboardInterrupt:
-            exit_event.set()
-            exit()
-        except IndexError:
-            # not enough/too many args passed to update or disable command
+    try:
+        command = commands.split()
+        if command[0] == 'help':
+            print("Print commands list here")  # debug
             pass
-        except ValueError:
-            # args to update or disable command are not numbers
+        elif command[0] == 'server':
+            print("Read topology file and update routing every x seconds")  # debug
             pass
+        elif command[0] == 'update':
+            server_id_1, server_id_2, link_cost = int(command[1]), int(command[2]), int(command[3])
+            pass
+        elif command[0] == 'step':
+            pass
+        elif command[0] == 'packets':
+            pass
+        elif command[0] == 'display':
+            pass
+        elif command[0] == 'disable':
+            server_id = int(command[1])
+            pass
+        elif command[0] == 'crash':
+            pass
+    except KeyboardInterrupt:
+        exit_event.set()
+        exit()
+    except IndexError:
+        # not enough/too many args passed to update or disable command
+        pass
+    except ValueError:
+        # args to update or disable command are not numbers
+        pass
 
 
 if __name__ == '__main__':
@@ -70,6 +69,7 @@ if __name__ == '__main__':
     print("Enter 'server -t <topology-file-name> -i <routing-update-interval>' to startup the server.")
     input_thread = threading.Thread(target=get_user_input)
     input_thread.start()
+
     # read topology file
 
     # initialize this server's distance vector
@@ -79,5 +79,4 @@ if __name__ == '__main__':
 
     # start timer on another thread
 
-    # ask for user input
-
+    # ask for user input on another thread
