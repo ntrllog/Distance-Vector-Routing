@@ -30,7 +30,7 @@ class ProgramManager:
         # Check if the number of lines is correct
         expected_line_count = 2 + num_servers + num_edges
         if len(lines) != expected_line_count:
-            print("Error: The topology file does not contain the correct number of lines.")
+            print("Error: The topology file does not contain the correct number of servers or neighbors.")
             return False
 
         # Use a set to track the server IDs from each line
