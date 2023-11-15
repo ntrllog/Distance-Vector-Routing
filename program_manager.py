@@ -71,7 +71,6 @@ class ProgramManager:
             port = int(line[2])
             self.list_of_servers[server_id] = ServerObject(server_id, ip, port)
 
-
     def init_topology(self, file_name):
         content = self.read_file(file_name)
         if not content:
