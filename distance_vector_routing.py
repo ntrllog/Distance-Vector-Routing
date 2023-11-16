@@ -44,13 +44,9 @@ if __name__ == '__main__':
             user_input = input("Enter a command: ")
             validation_result, file_name = validate_command(user_input)
             if validation_result == "valid":
-                # print("Command is valid.")  # debug
-                # print(f"Reading file: {file_name}")  # debug
-                # file_content = read_file(file_name)  # debug
-                # print("File content:")  # debug
-                # print(file_content)  # debug
-                print("host_id = program_manager.init_topology(file_name)")  # incomplete
-                print("get_update_interval")  # incomplete
+                host_id = program_manager.init_topology(file_name)  # debug
+                host_server = program_manager.get_server_by_id(host_id)  # debug
+                print("get_update_interval.....")  # incomplete
                 break
             else:
                 print(validation_result)
@@ -61,6 +57,8 @@ if __name__ == '__main__':
             print("Please re-enter the command correctly.")
 
     # initialize this server's distance vector
+    host_server.init_distance_vector()
+    host_server.display_routing_table() # debug
 
     # start UDP socket (using this server's ip and port) on another thread
     exit_event = threading.Event()

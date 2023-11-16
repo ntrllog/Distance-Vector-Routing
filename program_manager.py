@@ -5,6 +5,7 @@ class ProgramManager:
     list_of_servers = {}  # server_id => ServerObject
     update_interval = 0
     our_server_id = None
+    host_server = None
 
     def read_file(self, file_name):
         try:
@@ -17,14 +18,22 @@ class ProgramManager:
             print(f"Error: An IO error occurred while reading '{file_name}'.")
             return None
         except Exception as e:
-            print(f"An unexpected error occurred: {e}")
+            print(f"Error: An unexpected error occurred: {e}")
             return None
 
     def validate_topology_file(self, lines, num_servers, num_edges):
-        # Check if the first two lines contain single numbers
+        # Attempt to convert the first line to an integer
+        try:
+            first_line = int(lines[0])
+        except ValueError:
+            print("Error: The first line does not contain a valid number.")
+            return False
 
-        if not (lines[0].isdigit() and lines[1].isdigit()):
-            print("Error: The first or second line does not contain a valid number.")
+        # Attempt to convert the second line to an integer
+        try:
+            second_line = int(lines[1])
+        except ValueError:
+            print("Error: The second line does not contain a valid number.")
             return False
 
         # Check if the number of lines is correct
@@ -33,23 +42,11 @@ class ProgramManager:
             print("Error: The topology file does not contain the correct number of servers or neighbors.")
             return False
 
-        # Use a set to track the server IDs from each line
-        server_ids_sets = []
-
-        # Process connection lines and add server IDs to sets
-        connection_lines = lines[2 + num_servers:2 + num_servers + num_edges]
-        for line in connection_lines:
-            server_ids = set(map(int, line.split()[:2]))
-            server_ids_sets.append(server_ids)
-
-        # Find the common server ID across all lines
-        common_server_id = set.intersection(*server_ids_sets)
-
-        # Check if there is exactly one common server ID
-        if len(common_server_id) == 1:
-            self.our_server_id = common_server_id.pop()
-        else:
-            print("Error: Unable to determine 'our' server from the topology file.")
+        # Extract "our" server ID from the first number in the last num_edges lines
+        try:
+            self.our_server_id = int(lines[2 + num_servers + num_edges - 1].split()[0])
+        except ValueError:
+            print("Error: Unable to determine host server from the topology file.")
             return False
 
         return True
@@ -63,6 +60,7 @@ class ProgramManager:
         if not self.validate_topology_file(lines, num_servers, num_edges):
             raise Exception("Invalid topology file.")
 
+        # Split the content into lines and process server information
         lines = content.split('\n')
         for i in range(2, 2 + num_servers):
             line = lines[i].split()
@@ -71,16 +69,42 @@ class ProgramManager:
             port = int(line[2])
             self.list_of_servers[server_id] = ServerObject(server_id, ip, port)
 
+        # Get the host server ServerObject based on our_server_id
+        self.host_server = self.get_server_by_id(self.our_server_id)
+
+        # Retrieve neighbor id and cost from the content and add it to the host_server's neighbors
+        for i in range(2 + num_servers, 2 + num_servers + num_edges):
+            line = lines[i].split()
+            neighbor_id = int(line[1])
+            cost = int(line[2])
+            self.host_server.add_neighbor_cost(neighbor_id, cost)
+
+        # Set a large cost (e.g., infinity) for non-direct neighbors
+        for server_id in self.list_of_servers.keys():
+            if server_id != self.host_server.server_id and server_id not in self.host_server.neighbors:
+                self.host_server.add_neighbor_cost(server_id, float('inf'))
+
     def init_topology(self, file_name):
         content = self.read_file(file_name)
         if not content:
             raise Exception("Error: The topology file is empty or could not be read.")
 
+        # Parse the topology file and populate the list_of_servers dictionary
+        # Get the host server ServerObject based on our_server_id
+        # Also retrieve neighbor id and cost from the content and add it to the host_server's neighbors
         self.parse_topology(content)
+
         return self.our_server_id
 
     def get_server_by_id(self, server_id):
-        pass
+        # Check if the server_id exists in the list_of_servers dictionary
+        if server_id in self.list_of_servers:
+            # Return the ServerObject associated with the server_id
+            return self.list_of_servers[server_id]
+        else:
+            # Server with the given ID does not exist
+            print("Server with the given ID does not exist")
+            return None
 
     def add_server(self, server_id, server_ip, server_port):
         pass
