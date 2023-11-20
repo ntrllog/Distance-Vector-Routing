@@ -11,6 +11,8 @@ if __name__ == '__main__':
 
     # initialize this server's distance vector
 
+    # send this server's distance vector to its neighbors
+
     # start UDP socket (using this server's ip and port) on another thread
     exit_event = threading.Event()
 
