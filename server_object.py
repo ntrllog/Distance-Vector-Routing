@@ -5,7 +5,7 @@ class ServerObject:
         self.server_port = server_port
         self.neighbors = {} # server_id => actual cost
         self.distance_vector = {} # server_id => {'least_cost' => least_cost, 'next_hop_server_id' => server_id}
-        self.neighbor_dv = {} # server_id => {'least_cost' => least_cost, 'next_hop_server_id' => server_id}
+        self.neighbor_dv = {} # neighbor_id => {server_id => {'least_cost' => least_cost, 'next_hop_server_id' => server_id}}
         self.num_packets_rcvd = 0
 
     def init_distance_vector(self):
