@@ -26,7 +26,13 @@ if __name__ == '__main__':
             command = input('Enter a command: ').split()
             if command[0] == 'update':
                 server_id_1, server_id_2, link_cost = int(command[1]), int(command[2]), int(command[3])
-                pass
+                if server_id_1 != host_server.server_id and server_id_2 != host_server.server_id:
+                    continue
+                if server_id_1 == host_server.server_id:
+                    host_server.add_neighbor_cost(server_id_2, link_cost)
+                elif server_id_2 == host_server.server_id:
+                    host_server.add_neighbor_cost(server_id_1, link_cost)
+                host_server.update_distance_vector()
             elif command[0] == 'step':
                 pass
             elif command[0] == 'packets':
