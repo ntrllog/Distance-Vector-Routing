@@ -29,9 +29,6 @@ class ProgramManager:
     def parse_packet(self, packet):
         pass
 
-    def update_link_cost(self, server_id_1, server_id_2, cost):
-        pass
-
     def start_timer(self, exit_event):
         pass
 

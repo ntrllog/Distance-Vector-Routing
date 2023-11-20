@@ -23,9 +23,6 @@ class ServerObject:
     def get_neighbor_cost(self, server_id):
         pass
 
-    def update_neighbor_cost(self, server_id, cost):
-        pass
-
     def display_routing_table(self):
         pass
 
