@@ -15,7 +15,16 @@ class ProgramManager:
         pass
 
     def listen(self, server_ip, server_port, exit_event):
-        pass
+        # create a UDP socket
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        server_socket.bind((server_ip, server_port))
+        while not exit_event.is_set():
+            readable, _, _ = select.select([server_socket], [], [], 1)
+            if readable:
+                message, client_address = server_socket.recvfrom(2048)
+                packet = message.decode()
+                # self.parse_packet(packet) TODO
+        server_socket.close()
 
     def parse_packet(self, packet):
         pass

@@ -15,6 +15,8 @@ if __name__ == '__main__':
 
     # start UDP socket (using this server's ip and port) on another thread
     exit_event = threading.Event()
+    socket_thread = threading.Thread(target=program_manager.listen, args=[host_server.server_ip, host_server.server_port, exit_event])
+    socket_thread.start()
 
     # start timer on another thread
 
