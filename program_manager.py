@@ -1,3 +1,5 @@
+import socket, select
+
 class ProgramManager:
     list_of_servers = {} # server_id => ServerObject
     update_interval = 0
