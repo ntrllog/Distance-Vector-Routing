@@ -30,9 +30,9 @@ class ServerObject:
         pass
 
     def update_distance_vector(self):
-        from server_manager import ServerManager
+        from program_manager import ProgramManager
         dv_updated = False
-        for server_id in ServerManager().list_of_servers:
+        for server_id in ProgramManager().list_of_servers:
             if self.server_id == server_id:
                 continue
             least_cost = float('inf')
@@ -53,4 +53,4 @@ class ServerObject:
             for neighbor_id in self.neighbors:
                 if self.neighbors[neighbor_id] == float('inf'):
                     continue
-                # ServerManager().udp_send(self.server_id, neighbor_id) TODO
+                # ProgramManager().udp_send(self.server_id, neighbor_id) TODO
