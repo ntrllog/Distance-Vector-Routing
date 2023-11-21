@@ -1,5 +1,8 @@
 from server_object import ServerObject
+from packet import Packet
 import socket, select
+import time
+
 
 class ProgramManager:
     list_of_servers = {}  # server_id => ServerObject
@@ -109,8 +112,33 @@ class ProgramManager:
     def add_server(self, server_id, server_ip, server_port):
         pass
 
+    def get_update_interval(self, update_interval):
+        self.update_interval = update_interval
+
     def udp_send(self, src_server_id, dest_server_id):
-        pass
+        # Get the destination server's IP and port from the list_of_servers
+        dest_server = self.list_of_servers.get(dest_server_id)
+
+        # Create a Packet object with the relevant information
+        num_update_fields = len(self.list_of_servers)  # Number of update fields in the distance vector
+        src_server_ip = self.host_server.server_ip
+        src_server_port = self.host_server.server_port
+        distance_vector = self.host_server.distance_vector
+
+        # Serialize the Packet object to a string
+        packet = Packet(num_update_fields, src_server_ip, src_server_port, distance_vector)
+        packet_str = str(packet)
+
+        # Create a UDP socket
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+        try:
+            # Send the serialized Packet to the destination server
+            client_socket.sendto(packet_str.encode(), (dest_server.server_ip, dest_server.server_port))
+        except Exception as e:
+            print(f"Error sending UDP message to server {dest_server_id}: {e}")
+        finally:
+            client_socket.close()
 
     def listen(self, server_ip, server_port, exit_event):
         # create a UDP socket
@@ -128,7 +156,16 @@ class ProgramManager:
         pass
 
     def start_timer(self, exit_event):
-        pass
+        while not exit_event.is_set():
+            # Iterate through the list of servers and send UDP messages
+            for server_id in self.list_of_servers.items():
+                if not server_id == self.our_server_id:
+                    src_server_id = self.our_server_id
+                    dest_server_id = server_id
+                    self.udp_send(src_server_id, dest_server_id)
+
+            # Sleep for the specified update_interval
+            time.sleep(self.update_interval)
 
     def disable_connection(self, host_id, server_id):
         pass

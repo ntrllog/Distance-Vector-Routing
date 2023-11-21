@@ -1,5 +1,4 @@
 from program_manager import ProgramManager
-from server_object import ServerObject
 import threading
 import socket
 import os
@@ -59,9 +58,9 @@ if __name__ == '__main__':
             user_input = input("Enter a command: ")
             validation_result, file_name, update_interval = validate_command(user_input)
             if validation_result == "valid":
-                host_id = program_manager.init_topology(file_name)  # debug
-                host_server = program_manager.get_server_by_id(host_id)  # debug
-                print("get_update_interval.....")  # incomplete
+                host_id = program_manager.init_topology(file_name)
+                host_server = program_manager.get_server_by_id(host_id)
+                program_manager.get_update_interval(update_interval)
                 break
             else:
                 print("Please re-enter the command.")
