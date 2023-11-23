@@ -115,12 +115,12 @@ class ProgramManager:
     def get_update_interval(self, update_interval):
         self.update_interval = update_interval
 
-    def udp_send(self, src_server_id, dest_server_id):
+    def udp_send(self, dest_server_id):
         # Get the destination server's IP and port from the list_of_servers
-        dest_server = self.list_of_servers.get(dest_server_id)
+        dest_server = self.get_server_by_id(dest_server_id)
 
         # Create a Packet object with the relevant information
-        num_update_fields = len(self.list_of_servers)  # Number of update fields in the distance vector
+        num_update_fields = len(self.host_server.distance_vector)  # Number of update fields in the distance vector
         src_server_ip = self.host_server.server_ip
         src_server_port = self.host_server.server_port
         distance_vector = self.host_server.distance_vector
@@ -156,16 +156,20 @@ class ProgramManager:
         pass
 
     def start_timer(self, exit_event):
+        start_time = time.time()  # Initialize the start time
         while not exit_event.is_set():
-            # Iterate through the list of servers and send UDP messages
-            for server_id in self.list_of_servers.items():
-                if not server_id == self.our_server_id:
-                    src_server_id = self.our_server_id
-                    dest_server_id = server_id
-                    self.udp_send(src_server_id, dest_server_id)
+            current_time = time.time()  # Get the current time
+            elapsed_time = current_time - start_time  # Calculate elapsed time
 
-            # Sleep for the specified update_interval
-            time.sleep(self.update_interval)
+            if elapsed_time >= self.update_interval:
+                # Iterate through the list of servers and send UDP messages
+                for neighbor_id, cost in self.host_server.neighbors.items():
+                    if cost != float('inf'):
+                        dest_server_id = neighbor_id
+                        self.udp_send(dest_server_id)
+
+                # Reset the start time
+                start_time = current_time
 
     def disable_connection(self, host_id, server_id):
         pass

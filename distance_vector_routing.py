@@ -71,7 +71,6 @@ if __name__ == '__main__':
 
     # initialize this server's distance vector
     host_server.init_distance_vector()
-    # host_server.display_routing_table() #debug
 
     # start UDP socket (using this server's ip and port) on another thread
     host_ip = host_server.server_ip
@@ -81,6 +80,8 @@ if __name__ == '__main__':
     socket_thread.start()
 
     # start timer on another thread
+    timer_thread = threading.Thread(target=program_manager.start_timer, args=[exit_event])
+    timer_thread.start()
 
     # ask for user input
     while True:
