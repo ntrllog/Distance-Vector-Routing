@@ -9,10 +9,18 @@ class ServerObject:
         self.num_packets_rcvd = 0
 
     def init_distance_vector(self):
-        pass
+        for server_id in self.neighbors:
+            if server_id == self.server_id:
+                # For the host server, set least_cost to 0 and next_hop_server_id to itself
+                self.distance_vector[server_id] = {'least_cost': 0, 'next_hop_server_id': self.server_id}
+            else:
+                # For neighbors, set least_cost to their actual cost and next_hop_server_id to themselves
+                self.distance_vector[server_id] = {'least_cost': self.neighbors[server_id],
+                                                   'next_hop_server_id': server_id}
 
     def add_neighbor_cost(self, server_id, cost):
-        pass
+        # Add the neighbor's cost to the neighbors dictionary
+        self.neighbors[server_id] = cost
 
     def get_least_cost(self, server_id):
         pass
@@ -24,7 +32,18 @@ class ServerObject:
         pass
 
     def display_routing_table(self):
-        pass
+        # Sort the keys (server IDs) in ascending order
+        sorted_server_ids = sorted(self.distance_vector.keys())
+
+        # Print the routing table in the desired format
+        print("Routing Table:")
+        print("<destination-server-ID> <next-hop-server-ID> <cost-of-path>")
+        for server_id in sorted_server_ids:
+            entry = self.distance_vector[server_id]
+            destination = server_id
+            next_hop = entry['next_hop_server_id']
+            cost = entry['least_cost']
+            print(f"{destination} {next_hop} {cost}")
 
     def get_packets_rcvd(self):
         pass
@@ -54,3 +73,4 @@ class ServerObject:
                 if self.neighbors[neighbor_id] == float('inf'):
                     continue
                 # ProgramManager().udp_send(self.server_id, neighbor_id) TODO
+
