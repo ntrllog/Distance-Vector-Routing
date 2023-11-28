@@ -62,16 +62,11 @@ class ServerObject:
                 for neighbor_id in self.neighbors:
                     if self.neighbors[neighbor_id] == float('inf'):
                         continue
-                    print(f'distance to {server_id} from {neighbor_id}?')
-                    print(f'  distance to {neighbor_id}: ' + str(self.get_neighbor_cost(neighbor_id)))
-                    print(f'  distance to {server_id} from {neighbor_id}: ')
                     # D_x(y) = min_v{c(x,v) + D_v(y)}
                     if neighbor_id != server_id:
                         curr_cost = self.get_neighbor_cost(neighbor_id) + self.neighbor_dv[neighbor_id][server_id]['least_cost']
                     else:
                         curr_cost = self.get_neighbor_cost(neighbor_id)
-                    print(curr_cost)
-                    print(f'answer: {curr_cost}')
                     if curr_cost < least_cost:
                         least_cost = curr_cost
                         next_hop_server_id = neighbor_id
