@@ -97,11 +97,14 @@ if __name__ == '__main__':
                     host_server.add_neighbor_cost(server_id_1, link_cost)
                 host_server.update_distance_vector()
             elif command[0] == 'step':
-                pass
+                for neighbor_id in host_server.neighbors:
+                    if host_server.neighbors[neighbor_id] == float('inf'):
+                        continue
+                    program_manager.udp_send(neighbor_id)
             elif command[0] == 'packets':
-                pass
+                print(f"Packets received: {host_server.get_packets_rcvd()}")
             elif command[0] == 'display':
-                pass
+                host_server.display_routing_table()
             elif command[0] == 'disable':
                 server_id = int(command[1])
                 pass
@@ -115,4 +118,7 @@ if __name__ == '__main__':
             pass
         except ValueError:
             # args to update or disable command are not numbers
+            pass
+        except KeyError:
+            # a host has not received a distance vector from one of its neighbors yet
             pass
