@@ -46,7 +46,9 @@ class ServerObject:
             print(f"{destination} {next_hop} {cost}")
 
     def get_packets_rcvd(self):
-        pass
+        n = self.num_packets_rcvd
+        self.num_packets_rcvd = 0
+        return n
 
     def update_distance_vector(self):
         from program_manager import ProgramManager

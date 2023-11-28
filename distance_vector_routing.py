@@ -99,9 +99,9 @@ if __name__ == '__main__':
             elif command[0] == 'step':
                 pass
             elif command[0] == 'packets':
-                pass
+                print(f"Packets received: {host_server.get_packets_rcvd()}")
             elif command[0] == 'display':
-                pass
+                host_server.display_routing_table()
             elif command[0] == 'disable':
                 server_id = int(command[1])
                 pass

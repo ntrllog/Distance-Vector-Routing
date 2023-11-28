@@ -150,6 +150,7 @@ class ProgramManager:
             if readable:
                 message, client_address = server_socket.recvfrom(2048)
                 packet = message.decode()
+                self.host_server.num_packets_rcvd += 1
                 # self.parse_packet(packet) TODO
         server_socket.close()
 
