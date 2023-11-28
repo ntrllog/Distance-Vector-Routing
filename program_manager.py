@@ -155,21 +155,32 @@ class ProgramManager:
         server_socket.close()
 
     def parse_packet(self, packet):
+        import ast
         #f'{self.num_update_fields}/{self.src_server_ip}/{self.src_server_port}/{self.distance_vector}'
         packetRawData = packet.split('/')
         RAWdistance_vector = packetRawData[-1] #Obtain the raw distance vector
-        RAWdistance_vector = RAWdistance_vector[1:-1] #Remove the brackets from dict __str__
-        RAWdistance_vector = RAWdistance_vector.split(',') #Split entires by ','
-        distance_vector = {} #Initialize empty Dictionary
-        for item in RAWdistance_vector:
-            keyPair = item.split(': ') #Spliting by str dict ': '
-            if (keyPair[0][0] == '\''): #Removing possible string indicators
-                keyPair[0] = keyPair[0][1:-1]
-                keyPair[1] = keyPair[1][1:-1]
-            distance_vector[keyPair[0]] = keyPair[1]
+        RAWdistance_vector = RAWdistance_vector.replace('inf', '\"inf\"')
+        RAWdistance_vector = ast.literal_eval(RAWdistance_vector)
 
-        parsed_packet = Packet(int(packetRawData[0]), packetRawData[1], packetRawData[2], distance_vector)
-        self.host_server.neighbor_dv.update(parsed_packet.distance_vector) 
+        # get the server id of who sent the packet
+        src_server_ip = packetRawData[1]
+        src_server_port = packetRawData[2]
+        for server in self.list_of_servers.values():
+            if server.server_ip == src_server_ip and server.server_port == int(src_server_port):
+                src_server_id = server.server_id
+                break
+
+        # update the host's copy of its neighbor's distance vector
+        for server_id in RAWdistance_vector:
+            if src_server_id not in self.host_server.neighbor_dv:
+                self.host_server.neighbor_dv[src_server_id] = {server_id: {}}
+            if server_id not in self.host_server.neighbor_dv[src_server_id]:
+                self.host_server.neighbor_dv[src_server_id][server_id] = {}
+            self.host_server.neighbor_dv[src_server_id][server_id]['least_cost'] = RAWdistance_vector[server_id]['least_cost'] if RAWdistance_vector[server_id]['least_cost'] != 'inf' else float('inf')
+            self.host_server.neighbor_dv[src_server_id][server_id]['next_hop_server_id'] = RAWdistance_vector[server_id]['next_hop_server_id']
+
+        # update the host's distance vector
+        self.host_server.update_distance_vector()
 
     def start_timer(self, exit_event):
         start_time = time.time()  # Initialize the start time

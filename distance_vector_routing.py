@@ -72,12 +72,6 @@ if __name__ == '__main__':
     # initialize this server's distance vector
     host_server.init_distance_vector()
 
-    # send this server's distance vector to its neighbors
-    for neighbor_id in host_server.neighbors:
-        if host_server.neighbors[neighbor_id] == float('inf'):
-            continue
-        program_manager.udp_send(neighbor_id)
-
     # start UDP socket (using this server's ip and port) on another thread
     host_ip = host_server.server_ip
     host_port = host_server.server_port
@@ -124,4 +118,7 @@ if __name__ == '__main__':
             pass
         except ValueError:
             # args to update or disable command are not numbers
+            pass
+        except KeyError:
+            # a host has not received a distance vector from one of its neighbors yet
             pass
