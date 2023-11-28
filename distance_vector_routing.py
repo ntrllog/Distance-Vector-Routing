@@ -72,6 +72,12 @@ if __name__ == '__main__':
     # initialize this server's distance vector
     host_server.init_distance_vector()
 
+    # send this server's distance vector to its neighbors
+    for neighbor_id in host_server.neighbors:
+        if host_server.neighbors[neighbor_id] == float('inf'):
+            continue
+        program_manager.udp_send(neighbor_id)
+
     # start UDP socket (using this server's ip and port) on another thread
     host_ip = host_server.server_ip
     host_port = host_server.server_port
@@ -97,7 +103,10 @@ if __name__ == '__main__':
                     host_server.add_neighbor_cost(server_id_1, link_cost)
                 host_server.update_distance_vector()
             elif command[0] == 'step':
-                pass
+                for neighbor_id in host_server.neighbors:
+                    if host_server.neighbors[neighbor_id] == float('inf'):
+                        continue
+                    program_manager.udp_send(neighbor_id)
             elif command[0] == 'packets':
                 print(f"Packets received: {host_server.get_packets_rcvd()}")
             elif command[0] == 'display':

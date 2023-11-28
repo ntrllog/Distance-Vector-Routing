@@ -74,5 +74,5 @@ class ServerObject:
             for neighbor_id in self.neighbors:
                 if self.neighbors[neighbor_id] == float('inf'):
                     continue
-                # ProgramManager().udp_send(self.server_id, neighbor_id) TODO
+                ProgramManager().udp_send(neighbor_id)
 

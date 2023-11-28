@@ -151,7 +151,7 @@ class ProgramManager:
                 message, client_address = server_socket.recvfrom(2048)
                 packet = message.decode()
                 self.host_server.num_packets_rcvd += 1
-                # self.parse_packet(packet) TODO
+                self.parse_packet(packet)
         server_socket.close()
 
     def parse_packet(self, packet):
@@ -170,7 +170,6 @@ class ProgramManager:
 
         parsed_packet = Packet(int(packetRawData[0]), packetRawData[1], packetRawData[2], distance_vector)
         self.host_server.neighbor_dv.update(parsed_packet.distance_vector) 
-        return parsed_packet
 
     def start_timer(self, exit_event):
         start_time = time.time()  # Initialize the start time
