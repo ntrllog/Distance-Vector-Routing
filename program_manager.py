@@ -6,6 +6,7 @@ import time
 
 class ProgramManager:
     list_of_servers = {}  # server_id => ServerObject
+    time_stamp = {} # server_id => {'timestamp': timestamp, 'update_interval': update_inverval}
     update_interval = 0
     our_server_id = None
     host_server = None
@@ -128,7 +129,7 @@ class ProgramManager:
 
         # Serialize the Packet object to a string
         packet = Packet(num_update_fields, src_server_ip, src_server_port, distance_vector)
-        packet_str = str(packet)
+        packet_str = str(packet) + f"/{self.update_interval}"
 
         # Create a UDP socket
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -151,14 +152,15 @@ class ProgramManager:
                 message, client_address = server_socket.recvfrom(2048)
                 packet = message.decode()
                 self.host_server.num_packets_rcvd += 1
-                self.parse_packet(packet)
+                update = self.parse_packet(packet)
+                self.update(update[0], update[1])
         server_socket.close()
 
     def parse_packet(self, packet):
         import ast
-        #f'{self.num_update_fields}/{self.src_server_ip}/{self.src_server_port}/{self.distance_vector}'
+        # f'{self.num_update_fields}/{self.src_server_ip}/{self.src_server_port}/{self.distance_vector}/{self.update_interval}'
         packetRawData = packet.split('/')
-        RAWdistance_vector = packetRawData[-1] #Obtain the raw distance vector
+        RAWdistance_vector = packetRawData[3]  # Obtain the raw distance vector
         RAWdistance_vector = RAWdistance_vector.replace('inf', '\"inf\"')
         RAWdistance_vector = ast.literal_eval(RAWdistance_vector)
 
@@ -170,6 +172,9 @@ class ProgramManager:
                 src_server_id = server.server_id
                 break
 
+        # Print a message indicating that a message was received from the source server
+        print(f'RECEIVED A MESSAGE FROM SERVER {src_server_id}')
+
         # update the host's copy of its neighbor's distance vector
         for server_id in RAWdistance_vector:
             if src_server_id not in self.host_server.neighbor_dv:
@@ -180,7 +185,8 @@ class ProgramManager:
             self.host_server.neighbor_dv[src_server_id][server_id]['next_hop_server_id'] = RAWdistance_vector[server_id]['next_hop_server_id']
 
         # update the host's distance vector
-        self.host_server.update_distance_vector()
+        self.update_distance_vector(self.host_server.server_id)
+        return (src_server_id, int(packetRawData[4]))
 
     def start_timer(self, exit_event):
         start_time = time.time()  # Initialize the start time
@@ -197,6 +203,44 @@ class ProgramManager:
 
                 # Reset the start time
                 start_time = current_time
+
+    def update(self, server_id, update_interval):
+        self.time_stamp[server_id] = {'timestamp':time.time(), 'update_interval': update_interval}
+
+    def update_distance_vector(self, src_server_id):
+        try:
+            for dest_server_id in self.list_of_servers:
+                if src_server_id == dest_server_id:
+                    # don't need to find cost to myself (src_server)
+                    continue
+
+                # prepare to find least cost to dest_server from src_server's neighbors
+                least_cost = float('inf')
+                next_hop_server_id = None
+                src_server = self.get_server_by_id(src_server_id)
+                for neighbor_id in src_server.neighbors:
+                    if src_server.get_neighbor_cost(neighbor_id) == float('inf'):
+                        continue
+
+                    # D_x(y) = min_v{c(x,v) + D_v(y)}
+                    if neighbor_id != dest_server_id:
+                        # what is the cost to dest_server from one of my neighbors?
+                        curr_cost = src_server.get_neighbor_cost(neighbor_id) + src_server.neighbor_dv[neighbor_id][dest_server_id]['least_cost']
+                    else:
+                        # the cost to dest_server if the current neighbor in the loop is dest_server is just the direct cost
+                        curr_cost = src_server.get_neighbor_cost(neighbor_id)
+
+                    if curr_cost < least_cost:
+                        # there's a cheaper way to get to dest_server than what we currently are storing
+                        least_cost = curr_cost
+                        next_hop_server_id = neighbor_id
+
+                src_server.distance_vector[dest_server_id]['least_cost'] = least_cost
+                src_server.distance_vector[dest_server_id]['next_hop_server_id'] = next_hop_server_id
+        except KeyError:
+            # this host has not received a distance vector from one of its neighbors yet
+            # false alarm -- don't need to do anything
+            pass
 
     def disable_connection(self, host_id, server_id):
         pass
