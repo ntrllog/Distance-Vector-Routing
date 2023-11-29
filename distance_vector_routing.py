@@ -90,25 +90,32 @@ if __name__ == '__main__':
             if command[0] == 'update':
                 server_id_1, server_id_2, link_cost = int(command[1]), int(command[2]), int(command[3])
                 if server_id_1 != host_server.server_id and server_id_2 != host_server.server_id:
-                    continue
-                if server_id_1 == host_server.server_id:
-                    host_server.add_neighbor_cost(server_id_2, link_cost)
-                elif server_id_2 == host_server.server_id:
-                    host_server.add_neighbor_cost(server_id_1, link_cost)
-                host_server.update_distance_vector()
+                    print(f'update ERROR: Server {host_server.server_id} is not part of the link.')
+                else:
+                    if server_id_1 == host_server.server_id:
+                        host_server.add_neighbor_cost(server_id_2, link_cost)
+                    elif server_id_2 == host_server.server_id:
+                        host_server.add_neighbor_cost(server_id_1, link_cost)
+                    host_server.update_distance_vector()
+                    print('update SUCCESS')
             elif command[0] == 'step':
                 for neighbor_id in host_server.neighbors:
                     if host_server.neighbors[neighbor_id] == float('inf'):
                         continue
                     program_manager.udp_send(neighbor_id)
+                print('step SUCCESS')
             elif command[0] == 'packets':
                 print(f"Packets received: {host_server.get_packets_rcvd()}")
+                print('packets SUCCESS')
             elif command[0] == 'display':
                 host_server.display_routing_table()
+                print('display SUCCESS')
             elif command[0] == 'disable':
                 server_id = int(command[1])
+                print('disable SUCCESS')
                 pass
             elif command[0] == 'crash':
+                print('crash SUCCESS')
                 pass
         except KeyboardInterrupt:
             exit_event.set()

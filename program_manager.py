@@ -156,9 +156,9 @@ class ProgramManager:
 
     def parse_packet(self, packet):
         import ast
-        #f'{self.num_update_fields}/{self.src_server_ip}/{self.src_server_port}/{self.distance_vector}'
+        # f'{self.num_update_fields}/{self.src_server_ip}/{self.src_server_port}/{self.distance_vector}'
         packetRawData = packet.split('/')
-        RAWdistance_vector = packetRawData[-1] #Obtain the raw distance vector
+        RAWdistance_vector = packetRawData[-1]  # Obtain the raw distance vector
         RAWdistance_vector = RAWdistance_vector.replace('inf', '\"inf\"')
         RAWdistance_vector = ast.literal_eval(RAWdistance_vector)
 
@@ -169,6 +169,9 @@ class ProgramManager:
             if server.server_ip == src_server_ip and server.server_port == int(src_server_port):
                 src_server_id = server.server_id
                 break
+
+        # Print a message indicating that a message was received from the source server
+        print(f'RECEIVED A MESSAGE FROM SERVER {src_server_id}')
 
         # update the host's copy of its neighbor's distance vector
         for server_id in RAWdistance_vector:
