@@ -110,11 +110,7 @@ class ProgramManager:
             print("Server with the given ID does not exist")
             return None
 
-    def add_server(self, server_id, server_ip, server_port):
-        so = ServerObject(server_id, server_ip, server_port)
-        self.list_of_servers[server_id] = so
-
-    def get_update_interval(self, update_interval):
+    def set_update_interval(self, update_interval):
         self.update_interval = update_interval
 
     def udp_send(self, dest_server_id):
@@ -241,9 +237,3 @@ class ProgramManager:
             # this host has not received a distance vector from one of its neighbors yet
             # false alarm -- don't need to do anything
             pass
-
-    def disable_connection(self, host_id, server_id):
-        pass
-
-    def close_all_connections(self):
-        pass

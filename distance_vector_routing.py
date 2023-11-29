@@ -33,20 +33,6 @@ def validate_command(server_command):
     return "valid", file_name, update_interval
 
 
-# Function to handle UDP socket communication
-def udp_socket_thread(host_ip, host_port):
-    # Create a UDP socket
-    udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-    # Bind the socket to the host's IP and port
-    udp_socket.bind((host_ip, host_port))
-
-    while True:
-        # Receive data from the socket
-        data, addr = udp_socket.recvfrom(1024)
-        print(f"Received data: {data.decode()} from {addr}")
-
-
 if __name__ == '__main__':
     program_manager = ProgramManager()
 
@@ -60,7 +46,7 @@ if __name__ == '__main__':
             if validation_result == "valid":
                 host_id = program_manager.init_topology(file_name)
                 host_server = program_manager.get_server_by_id(host_id)
-                program_manager.get_update_interval(update_interval)
+                program_manager.set_update_interval(update_interval)
                 break
             else:
                 print("Please re-enter the command.")
@@ -88,7 +74,11 @@ if __name__ == '__main__':
         try:
             command = input('Enter a command: ').split()
             if command[0] == 'update':
-                server_id_1, server_id_2, link_cost = int(command[1]), int(command[2]), int(command[3])
+                server_id_1, server_id_2, link_cost = int(command[1]), int(command[2]), command[3]
+                if link_cost == 'inf':
+                    link_cost = float('inf')
+                else:
+                    link_cost = int(link_cost)
                 if server_id_1 != host_server.server_id and server_id_2 != host_server.server_id:
                     print(f'update ERROR: Server {host_server.server_id} is not part of the link.')
                 else:
@@ -100,7 +90,7 @@ if __name__ == '__main__':
                     print('update SUCCESS')
             elif command[0] == 'step':
                 for neighbor_id in host_server.neighbors:
-                    if host_server.neighbors[neighbor_id] == float('inf'):
+                    if host_server.get_neighbor_cost(neighbor_id) == float('inf'):
                         continue
                     program_manager.udp_send(neighbor_id)
                 print('step SUCCESS')
@@ -112,11 +102,21 @@ if __name__ == '__main__':
                 print('display SUCCESS')
             elif command[0] == 'disable':
                 server_id = int(command[1])
+                is_neighbor = False
+                for neighbor_id in host_server.neighbors:
+                    if server_id == neighbor_id and host_server.get_neighbor_cost(neighbor_id) != float('inf'):
+                        host_server.add_neighbor_cost(server_id, float('inf'))
+                        program_manager.update_distance_vector(host_server.server_id)
+                        is_neighbor = True
+                        break
+                if not is_neighbor:
+                    raise Exception(f'Server {server_id} is not a neighbor')
                 print('disable SUCCESS')
                 pass
             elif command[0] == 'crash':
                 print('crash SUCCESS')
-                pass
+                exit_event.set()
+                exit()
             elif command[0] == 'help':
                 pass
         except KeyboardInterrupt:
@@ -124,11 +124,13 @@ if __name__ == '__main__':
             exit()
         except IndexError:
             # not enough/too many args passed to update or disable command
-            pass
+            print(f'{command[0]} ERROR: wrong number of args passed')
         except ValueError:
             # args to update or disable command are not numbers
-            pass
+            print(f'{command[0]} ERROR: arg passed is not a number')
         except KeyError:
             # a host has not received a distance vector from one of its neighbors yet
             # false alarm -- don't need to do anything
             pass
+        except Exception as e:
+            print(f'{command[0]} ERROR: {e}')
