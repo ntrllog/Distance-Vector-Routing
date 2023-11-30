@@ -2,7 +2,7 @@ from program_manager import ProgramManager
 import threading
 import socket
 import os
-
+import time
 
 # Function to handle the first server command
 def validate_command(server_command):
@@ -87,8 +87,10 @@ if __name__ == '__main__':
                 else:
                     if server_id_1 == host_server.server_id:
                         host_server.add_neighbor_cost(server_id_2, link_cost)
+                        program_manager.time_stamp[server_id_2]['timestamp'] = time.time()
                     elif server_id_2 == host_server.server_id:
                         host_server.add_neighbor_cost(server_id_1, link_cost)
+                        program_manager.time_stamp[server_id_1]['timestamp'] = time.time()
                     program_manager.update_distance_vector(host_server.server_id)
                     print('update SUCCESS')
             elif command[0] == 'step':
