@@ -52,6 +52,7 @@ class ServerObject:
 
     def turn_off(self, server_id):
         if server_id in self.neighbors.keys():
-            self.distance_vector[server_id]['least_cost'] = float('inf')
-            self.distance_vector[server_id]['next_hop_server_id'] = None
+            # commented out to allow rerouting around a disabled link
+            #self.distance_vector[server_id]['least_cost'] = float('inf')
+            #self.distance_vector[server_id]['next_hop_server_id'] = None
             self.neighbors[server_id] = float('inf')

@@ -113,26 +113,30 @@ class ProgramManager:
     def set_update_interval(self, update_interval):
         self.update_interval = update_interval
 
-    def udp_send(self, dest_server_id):
+    def udp_send(self, dest_server_id, crashed=False):
         # Get the destination server's IP and port from the list_of_servers
         dest_server = self.get_server_by_id(dest_server_id)
 
-        # Create a Packet object with the relevant information
-        num_update_fields = len(self.host_server.distance_vector)  # Number of update fields in the distance vector
-        src_server_ip = self.host_server.server_ip
-        src_server_port = self.host_server.server_port
-        distance_vector = self.host_server.distance_vector
+        if crashed:
+            data_to_send = f'{self.host_server.server_id} crash'.encode()
+        else:
+            # Create a Packet object with the relevant information
+            num_update_fields = len(self.host_server.distance_vector)  # Number of update fields in the distance vector
+            src_server_ip = self.host_server.server_ip
+            src_server_port = self.host_server.server_port
+            distance_vector = self.host_server.distance_vector
 
-        # Serialize the Packet object to a string
-        packet = Packet(num_update_fields, src_server_ip, src_server_port, distance_vector)
-        packet_str = str(packet) + f"/{self.update_interval}"
+            # Serialize the Packet object to a string
+            packet = Packet(num_update_fields, src_server_ip, src_server_port, distance_vector)
+            packet_str = str(packet) + f"/{self.update_interval}"
+            data_to_send = packet_str.encode()
 
         # Create a UDP socket
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         try:
             # Send the serialized Packet to the destination server
-            client_socket.sendto(packet_str.encode(), (dest_server.server_ip, dest_server.server_port))
+            client_socket.sendto(data_to_send, (dest_server.server_ip, dest_server.server_port))
         except Exception as e:
             print(f"Error sending UDP message to server {dest_server_id}: {e}")
         finally:
@@ -146,10 +150,19 @@ class ProgramManager:
             readable, _, _ = select.select([server_socket], [], [], 1)
             if readable:
                 message, client_address = server_socket.recvfrom(2048)
-                packet = message.decode()
-                self.host_server.num_packets_rcvd += 1
-                update = self.parse_packet(packet)
-                self.update(update[0], update[1])
+                decoded_message = message.decode()
+                if 'crash' in decoded_message:
+                    crashed_server_id = int(decoded_message.split(' ')[0])
+                    self.host_server.add_neighbor_cost(crashed_server_id, float('inf'))
+                    for neighbor_id in self.host_server.neighbor_dv:
+                        if crashed_server_id in self.host_server.neighbor_dv[neighbor_id]:
+                            self.host_server.neighbor_dv[neighbor_id][crashed_server_id]['least_cost'] = float('inf')
+                            self.host_server.neighbor_dv[neighbor_id][crashed_server_id]['next_hop_server_id'] = None
+                    self.update_distance_vector(self.host_server.server_id)
+                else:
+                    self.host_server.num_packets_rcvd += 1
+                    update = self.parse_packet(decoded_message)
+                    self.update(update[0], update[1])
         server_socket.close()
 
     def timeout(self, exit_event):
@@ -160,6 +173,7 @@ class ProgramManager:
                 if id in self.time_stamp.keys():
                     if time.time() - self.time_stamp[id]['timestamp'] >= self.time_stamp[id]['update_interval'] * 3:
                         self.host_server.turn_off(id)
+                        self.update_distance_vector(self.host_server.server_id)
 
     def parse_packet(self, packet):
         import ast

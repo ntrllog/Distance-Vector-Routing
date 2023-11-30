@@ -118,6 +118,8 @@ if __name__ == '__main__':
                     raise Exception(f'Server {server_id} is not a neighbor')
                 print('disable SUCCESS')
             elif command[0] == 'crash':
+                for server_id in program_manager.list_of_servers:
+                    program_manager.udp_send(server_id, True)
                 print('crash SUCCESS')
                 exit_event.set()
                 exit()
