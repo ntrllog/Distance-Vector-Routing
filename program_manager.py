@@ -152,6 +152,15 @@ class ProgramManager:
                 self.update(update[0], update[1])
         server_socket.close()
 
+    def timeout(self, exit_event):
+        #IDEA: Loop through our list_of_servers ids and verify they have data in
+        #the time_stamp dictionary. If 3, then "turn off" the server.
+        while not exit_event.is_set():
+            for id in self.list_of_servers.keys():
+                if id in self.time_stamp.keys():
+                    if time.time() - self.time_stamp[id]['timestamp'] >= self.time_stamp[id]['update_interval'] * 3:
+                        self.host_server.turn_off(id)
+
     def parse_packet(self, packet):
         import ast
         # f'{self.num_update_fields}/{self.src_server_ip}/{self.src_server_port}/{self.distance_vector}/{self.update_interval}'
