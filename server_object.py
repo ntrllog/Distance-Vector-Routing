@@ -51,5 +51,7 @@ class ServerObject:
         return n
 
     def turn_off(self, server_id):
-        self.distance_vector[server_id]['least_cost'] = float('inf')
-        self.distance_vector[server_id]['next_hop_server_id'] = None
+        if server_id in self.neighbors.keys():
+            self.distance_vector[server_id]['least_cost'] = float('inf')
+            self.distance_vector[server_id]['next_hop_server_id'] = None
+            self.neighbors[server_id] = float('inf')

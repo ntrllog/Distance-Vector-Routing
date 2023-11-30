@@ -157,11 +157,9 @@ class ProgramManager:
         #the time_stamp dictionary. If 3, then "turn off" the server.
         while not exit_event.is_set():
             for id in self.list_of_servers.keys():
-                if time.time() - self.time_stamp[id]['timestamp'] >= self.time_stamp[id]['update_interval'] * 3:
-                    for neighbor_id in self.list_of_servers.keys():
-                        if neighbor_id == id:
-                            continue
-                        self.list_of_servers[neighbor_id].turn_off(id)
+                if id in self.time_stamp.keys():
+                    if time.time() - self.time_stamp[id]['timestamp'] >= self.time_stamp[id]['update_interval'] * 3:
+                        self.host_server.turn_off(id)
             
 
     def parse_packet(self, packet):
