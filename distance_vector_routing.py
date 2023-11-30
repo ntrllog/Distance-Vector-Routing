@@ -127,7 +127,7 @@ if __name__ == '__main__':
                 str += "display \n\t| Displays the current routing table.\n"
                 str += "disable <Server Id> \n\t| Disables a single server.\n"
                 str += "crash \n\t| Exits the program.\n"
-                str += "help \n\t| Displays command definitions and usage\n."
+                str += "help \n\t| Displays command definitions and usage.\n"
                 print(str)
                 pass
         except KeyboardInterrupt:
