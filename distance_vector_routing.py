@@ -68,6 +68,9 @@ if __name__ == '__main__':
     # start timer on another thread
     timer_thread = threading.Thread(target=program_manager.start_timer, args=[exit_event])
     timer_thread.start()
+    
+    timeout_thread = threading.Thread(target = program_manager.timeout, args=[exit_event])
+    timeout_thread.start()
 
     # ask for user input
     while True:
