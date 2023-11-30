@@ -160,7 +160,6 @@ class ProgramManager:
                 if id in self.time_stamp.keys():
                     if time.time() - self.time_stamp[id]['timestamp'] >= self.time_stamp[id]['update_interval'] * 3:
                         self.host_server.turn_off(id)
-            
 
     def parse_packet(self, packet):
         import ast

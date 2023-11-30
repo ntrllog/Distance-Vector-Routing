@@ -121,6 +121,14 @@ if __name__ == '__main__':
                 exit_event.set()
                 exit()
             elif command[0] == 'help':
+                str = "update <Server Id1> <Server Id2> <link Cost> \n\t| Updates the linking cost between two Servers.\n"
+                str += "step \n\t| Sends a UDP packet to all active neighbors.\n"
+                str += "packets \n\t| Displays all packets recieved.\n"
+                str += "display \n\t| Displays the current routing table.\n"
+                str += "disable <Server Id> \n\t| Disables a single server.\n"
+                str += "crash \n\t| Exits the program.\n"
+                str += "help \n\t| Displays command definitions and usage\n."
+                print(str)
                 pass
         except KeyboardInterrupt:
             exit_event.set()
