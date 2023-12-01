@@ -9,25 +9,50 @@ class ServerObject:
         self.num_packets_rcvd = 0
 
     def init_distance_vector(self):
-        pass
+        for server_id in self.neighbors:
+            if server_id == self.server_id:
+                # For the host server, set least_cost to 0 and next_hop_server_id to itself
+                self.distance_vector[server_id] = {'least_cost': 0, 'next_hop_server_id': self.server_id}
+            else:
+                # For neighbors, set least_cost to their actual cost and next_hop_server_id to themselves
+                self.distance_vector[server_id] = {'least_cost': self.neighbors[server_id],
+                                                   'next_hop_server_id': server_id}
 
     def add_neighbor_cost(self, server_id, cost):
-        pass
+        # Add the neighbor's cost to the neighbors dictionary
+        self.neighbors[server_id] = cost
 
     def get_least_cost(self, server_id):
-        pass
+        return self.distance_vector[server_id]['least_cost']
 
     def get_next_hop_server_id(self, server_id):
-        pass
+        return self.distance_vector[server_id]['next_hop_server_id']
 
     def get_neighbor_cost(self, server_id):
-        pass
+        return self.neighbors[server_id]
 
     def display_routing_table(self):
-        pass
+        # Sort the keys (server IDs) in ascending order
+        sorted_server_ids = sorted(self.distance_vector.keys())
+
+        # Print the routing table in the desired format
+        print("Routing Table:")
+        print("<destination-server-ID> <next-hop-server-ID> <cost-of-path>")
+        for server_id in sorted_server_ids:
+            entry = self.distance_vector[server_id]
+            destination = server_id
+            next_hop = entry['next_hop_server_id']
+            cost = entry['least_cost']
+            print(f"{destination} {next_hop} {cost}")
 
     def get_packets_rcvd(self):
-        pass
+        n = self.num_packets_rcvd
+        self.num_packets_rcvd = 0
+        return n
 
-    def update_distance_vector(self):
-        pass
+    def turn_off(self, server_id):
+        if server_id in self.neighbors.keys():
+            # commented out to allow rerouting around a disabled link
+            #self.distance_vector[server_id]['least_cost'] = float('inf')
+            #self.distance_vector[server_id]['next_hop_server_id'] = None
+            self.neighbors[server_id] = float('inf')
