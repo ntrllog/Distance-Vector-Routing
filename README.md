@@ -5,6 +5,7 @@
 This Python project implements a robust routing protocol over a network of servers acting as routers. It's designed to adapt dynamically to changes in the network topology and link costs.
 
 ## Dependencies
+
 - **Python Version:** At least Python 3.11.x
 
 ## How to Install Dependencies
@@ -17,9 +18,11 @@ This Python project implements a robust routing protocol over a network of serve
 ## Getting Started
 
 ### Creating Topology Files
+
 Before running the program, create a topology file for each server. This file should only include the link cost to the server's immediate neighbors. The program determines its own host ID and IP port by scanning through the neighbors' link cost list.
 
 ### Topology File Example
+
 ![Topology File Example](https://i.imgur.com/efbem4Q.png)
 
 ## Running the Program
@@ -44,8 +47,4 @@ Type `help` in the terminal to see all available commands. These commands allow 
 
 ## More Information
 
-For detailed project information, setup guidelines, and advanced features, please refer to the accompanying [Project Detail PDF](Link to PDF).
-
-## Contact
-
-For queries, please contact [Project Maintainer or Team Contact](Contact Link or Email).
+For detailed project information, setup guidelines, and advanced features, please refer to the accompanying [Assignment.pdf](https://github.com/ntrllog/Distance-Vector-Routing/blob/main/Assignment.pdf).
