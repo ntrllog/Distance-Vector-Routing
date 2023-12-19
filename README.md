@@ -1,5 +1,3 @@
-# Distance-Vector-Routing
-
 # Project Overview
 
 This Python project implements a robust routing protocol over a network of servers acting as routers. It's designed to adapt dynamically to changes in the network topology and link costs.
