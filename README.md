@@ -45,12 +45,4 @@ Type `help` in the terminal to see all available commands. These commands allow 
 
 ## More Information
 
-<<<<<<< HEAD
 For detailed project information, setup guidelines, and advanced features, please refer to the accompanying [Assignment.pdf](https://github.com/ntrllog/Distance-Vector-Routing/blob/main/Assignment.pdf).
-=======
-For detailed project information, setup guidelines, and advanced features, please refer to the accompanying [Project Detail PDF](Link to PDF).
-
-## Contact
-
-For queries, please contact [Project Maintainer or Team Contact](Contact Link or Email).
->>>>>>> 3f54e8999c70ec39b2e25e85d6634f5bfffd9bc2
